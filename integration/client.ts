@@ -1,5 +1,10 @@
 export default (element: HTMLElement) => {
     return async (Component: any, props: any) => {
-        Component.mount(element, props)
+        if (typeof Component.hydrate === 'function') {
+            Component.hydrate(element, props)
+        } else {
+            element.innerHTML = ''
+            Component.mount(element, props)
+        }
     }
 }

@@ -81,6 +81,22 @@ pub extern "js" fn target_value(e : Event) -> String =
   #|(e) => e.target.value
 
 ///|
+pub extern "js" fn nth_child_element(el : Element, i : Int) -> Element? =
+  #|(el, i) => {
+  #|  const node = el.childNodes[i];
+  #|  if (node && node.nodeType === 1) return {$tag: 1, _0: node};
+  #|  return {$tag: 0};
+  #|}
+
+///|
+pub extern "js" fn nth_child_text(el : Element, i : Int) -> TextNode? =
+  #|(el, i) => {
+  #|  const node = el.childNodes[i];
+  #|  if (node && node.nodeType === 3) return {$tag: 1, _0: node};
+  #|  return {$tag: 0};
+  #|}
+
+///|
 pub extern "js" fn query_selector(selector : String) -> Element? =
   #|(s) => {
   #|  const el = document.querySelector(s);

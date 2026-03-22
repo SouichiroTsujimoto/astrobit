@@ -50,9 +50,9 @@ pub fn render_to_html(node : Node) -> String {
     }
     Text(s) => escape_html(s)
     Empty => ""
-    RawHtml(html) => html
+    RawHtml(html) => "<span>" + html + "</span>"
     DynText(f) => escape_html(f())
-    Dynamic(f) => render_to_html(f())
+    Dynamic(f) => "<!--dynamic--><span>" + render_to_html(f()) + "</span>"
     WithEvents(inner, _) => render_to_html(inner)
     WithDynAttrs(inner, dyn_a) =>
       match inner {
@@ -419,6 +419,82 @@ pub fn on_submit(node : Node, handler : (@dom.Event) -> Unit) -> Node {
 ///|
 pub fn dyn_attr(node : Node, name : String, f : () -> String) -> Node {
   WithDynAttrs(node, [(name, fn() { Some(f()) })])
+}
+
+///|
+/// SSR で生成した既存 DOM に signal とイベントを接続する。
+/// DOM ツリーを再構築せず、TextNode の in-place 更新とイベント登録のみ行う。
+pub fn hydrate_dom(parent : @dom.Element, node : Node) -> Unit {
+  let _ = hydrate_node(parent, node, 0)
+}
+
+/// childNodes[index] から始まる Node を hydrate し、次の index を返す。
+fn hydrate_node(parent : @dom.Element, node : Node, index : Int) -> Int {
+  match node {
+    Element(_, _, children) =>
+      match @dom.nth_child_element(parent, index) {
+        Some(el) => {
+          let mut ci = 0
+          for child in children {
+            ci = hydrate_node(el, child, ci)
+          }
+          index + 1
+        }
+        None => index + 1
+      }
+    Text(_) => index + 1
+    Empty => index
+    RawHtml(_) => index + 1 // <span> から始まる 1 ノード
+    DynText(f) =>
+      match @dom.nth_child_text(parent, index) {
+        Some(tn) => {
+          let _ = @signals.render_effect(fn() { @dom.set_node_text(tn, f()) })
+          index + 1
+        }
+        None => index + 1
+      }
+    Dynamic(f) => {
+      // childNodes[index]   = <!--dynamic--> (comment)
+      // childNodes[index+1] = <span>         (content wrapper)
+      match @dom.nth_child_element(parent, index + 1) {
+        Some(span) => {
+          let _ = @signals.render_effect(fn() {
+            @dom.set_inner_html(span, "")
+            mount_dom(span, f())
+          })
+        }
+        None => ()
+      }
+      index + 2
+    }
+    WithEvents(inner, events) => {
+      let next = hydrate_node(parent, inner, index)
+      match @dom.nth_child_element(parent, index) {
+        Some(el) =>
+          for pair in events {
+            @dom.add_event_listener(el, pair.0, pair.1)
+          }
+        None => ()
+      }
+      next
+    }
+    WithDynAttrs(inner, dyn_attrs) => {
+      let next = hydrate_node(parent, inner, index)
+      match @dom.nth_child_element(parent, index) {
+        Some(el) =>
+          for pair in dyn_attrs {
+            let _ = @signals.render_effect(fn() {
+              match (pair.1)() {
+                Some(v) => @dom.set_attribute(el, pair.0, v)
+                None => @dom.remove_attribute(el, pair.0)
+              }
+            })
+          }
+        None => ()
+      }
+      next
+    }
+  }
 }
 
 ///|
