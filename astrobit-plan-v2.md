@@ -205,8 +205,7 @@ astrobit/
 
 **5. タグ関数の拡充**
 
-実装済み: `h1`〜`h6`, `nav`, `header`, `footer`
-未実装: `section`, `article`, `textarea`, `pre`, `code`
+実装済み: `h1`〜`h6`, `nav`, `header`, `footer`, `section`, `article`, `textarea`, `pre`, `code`
 
 ### 優先度: 低
 

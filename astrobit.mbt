@@ -382,6 +382,22 @@ pub fn[C : ToArrayNode] code(
 }
 
 ///|
+pub fn[C : ToArrayNode] textarea(
+  attrs? : Map[String, String] = {},
+  children : C,
+) -> Node {
+  tag("textarea", attrs~, children)
+}
+
+///|
+pub fn[C : ToArrayNode] pre(
+  attrs? : Map[String, String] = {},
+  children : C,
+) -> Node {
+  tag("pre", attrs~, children)
+}
+
+///|
 pub fn dyn_text(f : () -> String) -> Node {
   DynText(f)
 }
@@ -428,6 +444,7 @@ pub fn hydrate_dom(parent : @dom.Element, node : Node) -> Unit {
   let _ = hydrate_node(parent, node, 0)
 }
 
+///|
 /// childNodes[index] から始まる Node を hydrate し、次の index を返す。
 fn hydrate_node(parent : @dom.Element, node : Node, index : Int) -> Int {
   match node {
