@@ -1,12 +1,29 @@
 {
   "name": "astrobit",
-  "version": "1.0.0",
-  "main": "integration.ts",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/integration.js",
+  "types": "./dist/integration.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/integration.js",
+      "types": "./dist/integration.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
   "peerDependencies": {
     "astro": "^6.0.0"
   },
   "devDependencies": {
-    "astro": "^6.0.0"
+    "astro": "^6.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
   },
   "license": "MIT"
 }
