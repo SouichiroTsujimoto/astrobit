@@ -1,0 +1,13 @@
+{
+  "name": "SouichiroTsujimoto/astrobit",
+  "version": "0.1.0",
+  "deps": {
+    "mizchi/signals": "0.6.4"
+  },
+  "readme": "README.mbt.md",
+  "repository": "",
+  "license": "Apache-2.0",
+  "keywords": [],
+  "description": "",
+  "preferred-target": "js"
+}

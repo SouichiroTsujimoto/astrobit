@@ -1,0 +1,9 @@
+import {
+  "SouichiroTsujimoto/astrobit" @a,
+  "SouichiroTsujimoto/astrobit/dom",
+  "mizchi/signals",
+}
+
+options(
+  link: { "js": { "exports": [ "mount" ], "format": "esm" } },
+)

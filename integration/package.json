@@ -1,0 +1,12 @@
+{
+  "name": "astrobit",
+  "version": "1.0.0",
+  "main": "integration.ts",
+  "peerDependencies": {
+    "astro": "^6.0.0"
+  },
+  "devDependencies": {
+    "astro": "^6.0.0"
+  },
+  "license": "MIT"
+}
