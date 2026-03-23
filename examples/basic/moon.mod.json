@@ -1,0 +1,8 @@
+{
+  "name": "yourname/basic",
+  "deps": {
+    "SouichiroTsujimoto/astrobit": { "path": "../../" },
+    "mizchi/signals": "0.6.4"
+  },
+  "preferred-target": "js"
+}

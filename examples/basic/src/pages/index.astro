@@ -1,0 +1,29 @@
+---
+import Counter from '../components/counter/counter.mbt'
+import Greeting from '../components/greeting/greeting.mbt'
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>astrobit demo</title>
+	</head>
+	<body>
+		<h1>astrobit demo</h1>
+
+		<h2>Greeting (client:load — SSR + hydration)</h2>
+		<p>ページソースを見ると &lt;p&gt;Hello, MoonBit!&lt;/p&gt; が HTML に含まれている（SSR）。<br />
+		ボタンのトグルはクライアントサイドのみ動作する（hydration）。</p>
+		<Greeting client:load name="MoonBit" />
+
+		<hr />
+
+		<h2>Counter (client:only — SSR なし)</h2>
+		<p>ページソースにカウンターの HTML は含まれない。JS が実行されて初めて描画される。</p>
+		<Counter client:only="astrobit" initial={0} />
+	</body>
+</html>
