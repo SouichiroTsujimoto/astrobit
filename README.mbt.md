@@ -55,16 +55,20 @@ Each component lives in its own directory with a `moon.pkg` file.
 ```json
 {
   "import": [
-    "SouichiroTsujimoto/astrobit",
+    "SouichiroTsujimoto/astrobit" @a,
     "SouichiroTsujimoto/astrobit/dom",
     "mizchi/signals"
-  ]
+  ],
+  "options": {
+    "link": { "js": { "exports": ["mount", "render", "hydrate"], "format": "esm" } }
+  }
 }
 ```
 
 **`src/components/counter/counter.mbt`**
 ```moonbit
-fn counter(initial : Int) -> @a.Node {
+fn counter(props : @dom.Props) -> @a.Node {
+  let initial = props.get_int("initial")
   let count = @signals.signal(initial)
   @a.div([
     @a.p(@a.dyn_text(fn() { "Count: " + count.get().to_string() })),
@@ -73,17 +77,27 @@ fn counter(initial : Int) -> @a.Node {
   ])
 }
 
-pub fn mount(element : @dom.Element, initial : Int) -> Unit {
-  @a.mount_dom(element, counter(initial))
+pub fn mount(element : @dom.Element, props : @dom.Props) -> Unit {
+  @a.mount_dom(element, counter(props))
 }
 
-pub fn render(initial : Int) -> String {
-  @a.render_to_html(counter(initial))
+pub fn render(props : @dom.Props) -> String {
+  @a.render_to_html(counter(props))
 }
 
-pub fn hydrate(element : @dom.Element, initial : Int) -> Unit {
-  @a.hydrate_dom(element, counter(initial))
+pub fn hydrate(element : @dom.Element, props : @dom.Props) -> Unit {
+  @a.hydrate_dom(element, counter(props))
 }
+```
+
+Props are received as `@dom.Props` and extracted with typed accessors:
+
+```moonbit
+props.get_int("key")               // Int (default: 0)
+props.get_string("key")            // String (default: "")
+props.get_bool("key")              // Bool (default: false)
+
+props.get_int("key", default=10)   // with explicit default
 ```
 
 ## Using in Astro
@@ -101,6 +115,8 @@ import Counter from '../components/counter/counter.mbt'
 <!-- client:load — SSR + hydration -->
 <Counter client:load initial={0} />
 ```
+
+TypeScript types for `*.mbt` imports are injected automatically — no manual `env.d.ts` setup required.
 
 ## Build
 

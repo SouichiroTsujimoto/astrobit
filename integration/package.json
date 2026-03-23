@@ -30,5 +30,11 @@
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   },
+  "description": "A thin framework for running MoonBit components as Astro islands",
+  "keywords": ["astro", "moonbit", "island", "framework", "astro-integration"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SouichiroTsujimoto/astrobit"
+  },
   "license": "MIT"
 }

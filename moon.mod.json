@@ -5,9 +5,9 @@
     "mizchi/signals": "0.6.4"
   },
   "readme": "README.mbt.md",
-  "repository": "",
-  "license": "Apache-2.0",
-  "keywords": [],
-  "description": "",
+  "repository": "https://github.com/SouichiroTsujimoto/astrobit",
+  "license": "MIT",
+  "keywords": ["astro", "moonbit", "island", "framework"],
+  "description": "A thin framework for running MoonBit components as Astro islands",
   "preferred-target": "js"
 }
