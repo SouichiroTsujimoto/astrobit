@@ -1,6 +1,6 @@
 {
   "name": "astrobit",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "type": "module",
   "main": "./dist/integration.js",
   "types": "./dist/integration.d.ts",
@@ -31,7 +31,13 @@
     "typescript": "^5.9.3"
   },
   "description": "A thin framework for running MoonBit components as Astro islands",
-  "keywords": ["astro", "moonbit", "island", "framework", "astro-integration"],
+  "keywords": [
+    "astro",
+    "moonbit",
+    "island",
+    "framework",
+    "astro-integration"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/SouichiroTsujimoto/astrobit"
