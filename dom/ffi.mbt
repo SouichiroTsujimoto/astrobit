@@ -108,24 +108,24 @@ pub extern "js" fn query_selector(selector : String) -> Element? =
 extern "js" fn props_get_int_js(props : Props, key : String) -> Int? =
   #|(props, key) => {
   #|  const v = props[key];
-  #|  if (v == null) return {$tag: 0};
-  #|  return {$tag: 1, _0: v};
+  #|  if (v == null) return undefined;
+  #|  return v;
   #|}
 
 ///|
 extern "js" fn props_get_string_js(props : Props, key : String) -> String? =
   #|(props, key) => {
   #|  const v = props[key];
-  #|  if (v == null) return {$tag: 0};
-  #|  return {$tag: 1, _0: String(v)};
+  #|  if (v == null) return undefined;
+  #|  return String(v);
   #|}
 
 ///|
 extern "js" fn props_get_bool_js(props : Props, key : String) -> Bool? =
   #|(props, key) => {
   #|  const v = props[key];
-  #|  if (v == null) return {$tag: 0};
-  #|  return {$tag: 1, _0: Boolean(v)};
+  #|  if (v == null) return undefined;
+  #|  return Boolean(v);
   #|}
 
 ///|
