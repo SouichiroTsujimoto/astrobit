@@ -8,10 +8,14 @@
     ".": {
       "import": "./dist/integration.js",
       "types": "./dist/integration.d.ts"
+    },
+    "./env": {
+      "types": "./env.d.ts"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "env.d.ts"
   ],
   "scripts": {
     "build": "tsup",
@@ -21,6 +25,7 @@
     "astro": "^6.0.0"
   },
   "devDependencies": {
+    "@types/node": "^22.0.0",
     "astro": "^6.0.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"

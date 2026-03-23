@@ -3,7 +3,7 @@ import { spawn } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 var VIRTUAL_PREFIX = "virtual:moonbit:";
-var STUB_MODULE = `export default { __moonbit: true, mount: () => {}, render: () => '<div></div>', hydrate: () => {} }`;
+var STUB_MODULE = `export default { __moonbit: true, mount: () => {}, render: () => '', hydrate: () => {} }`;
 function findWorkspaceRoot(startDir) {
   let dir = startDir;
   while (dir !== path.dirname(dir)) {
@@ -12,52 +12,11 @@ function findWorkspaceRoot(startDir) {
   }
   return startDir;
 }
-function parseDts(dtsPath) {
-  if (!fs.existsSync(dtsPath)) return [];
-  const content = fs.readFileSync(dtsPath, "utf-8");
-  const fns = [];
-  const re = /export function (\w+)\(([^)]*)\)/g;
-  for (let m = re.exec(content); m !== null; m = re.exec(content)) {
-    const params = m[2].split(",").map((s) => s.trim()).filter(Boolean).map((s) => {
-      const i = s.indexOf(":");
-      return { name: s.slice(0, i).trim(), type: s.slice(i + 1).trim() };
-    });
-    fns.push({ name: m[1], params });
-  }
-  return fns;
-}
-function defaultValue(type) {
-  if (/Int|number/.test(type)) return "0";
-  if (/Bool|boolean/.test(type)) return "false";
-  return '""';
-}
-function generateModule(builtJsPath, fns) {
-  const mount = fns.find((f) => f.name === "mount");
-  const render = fns.find((f) => f.name === "render");
-  const hydrate = fns.find((f) => f.name === "hydrate");
-  const toArgs = (params, skipFirst) => {
-    const ps = skipFirst ? params.slice(1) : params;
-    return ps.map((p) => `props.${p.name} ?? ${defaultValue(p.type)}`).join(", ");
-  };
-  return [
-    `import * as moonbit from ${JSON.stringify(builtJsPath)}`,
-    `export default {`,
-    `  __moonbit: true,`,
-    mount ? `  mount:   (element, props) => moonbit.mount(element, ${toArgs(mount.params, true)}),` : "",
-    render ? `  render:  (props) => moonbit.render(${toArgs(render.params, false)}),` : "",
-    hydrate ? `  hydrate: (element, props) => moonbit.hydrate(element, ${toArgs(hydrate.params, true)}),` : "",
-    `}`
-  ].filter(Boolean).join("\n");
-}
-function computePaths(mbtFsPath, workspaceRoot) {
+function computeBuiltJsPath(mbtFsPath, workspaceRoot) {
   const pkgDir = path.dirname(mbtFsPath);
   const pkgName = path.basename(pkgDir);
   const relDir = path.relative(workspaceRoot, pkgDir);
-  const builtDir = path.join(workspaceRoot, "_build", "js", "debug", "build", relDir);
-  return {
-    builtJs: path.join(builtDir, `${pkgName}.js`),
-    builtDts: path.join(builtDir, `${pkgName}.d.ts`)
-  };
+  return path.join(workspaceRoot, "_build", "js", "debug", "build", relDir, `${pkgName}.js`);
 }
 function toFsPath(id, importer, projectRoot) {
   if (id.startsWith(".") && importer && !importer.startsWith("\0")) {
@@ -68,13 +27,20 @@ function toFsPath(id, importer, projectRoot) {
   return path.join(projectRoot, rel);
 }
 function loadMbt(mbtFsPath, workspaceRoot) {
-  const { builtJs, builtDts } = computePaths(mbtFsPath, workspaceRoot);
-  const fns = parseDts(builtDts);
-  if (fns.length === 0) {
-    console.warn(`[astrobit] No exports found for ${mbtFsPath}. Run moon build first.`);
+  const builtJs = computeBuiltJsPath(mbtFsPath, workspaceRoot);
+  if (!fs.existsSync(builtJs)) {
+    console.warn(`[astrobit] Build output not found for ${mbtFsPath}. Run moon build first.`);
     return STUB_MODULE;
   }
-  return generateModule(builtJs, fns);
+  return [
+    `import * as moonbit from ${JSON.stringify(builtJs)}`,
+    `export default {`,
+    `  __moonbit: true,`,
+    `  ...(moonbit.mount   ? { mount:   (el, props) => moonbit.mount(el, props) }   : {}),`,
+    `  ...(moonbit.render  ? { render:  (props) => moonbit.render(props) }           : {}),`,
+    `  ...(moonbit.hydrate ? { hydrate: (el, props) => moonbit.hydrate(el, props) } : {}),`,
+    `}`
+  ].join("\n");
 }
 function moonBuild(cwd) {
   return new Promise((resolve2) => {
@@ -113,7 +79,6 @@ function moonbitVitePlugin() {
       if (id.startsWith(VIRTUAL_PREFIX)) return;
       const cleanId = id.split("?")[0];
       if (!cleanId.endsWith(".mbt")) return;
-      console.log("[moonbit] transform (fallback):", id);
       const mbtFsPath = toFsPath(cleanId, void 0, projectRoot);
       return { code: loadMbt(mbtFsPath, workspaceRoot), map: null };
     },
@@ -143,6 +108,22 @@ function astrobit() {
           serverEntrypoint: new URL("./server.js", import.meta.url).href
         });
         updateConfig({ vite: { plugins: [moonbitVitePlugin()] } });
+      },
+      "astro:config:done": ({ injectTypes }) => {
+        injectTypes({
+          filename: "astrobit.d.ts",
+          content: `declare module '*.mbt' {
+  interface MoonBitComponent {
+    (props: Record<string, unknown>): unknown
+    __moonbit: true
+    mount?: (element: Element, props: Record<string, unknown>) => void
+    render?: (props: Record<string, unknown>) => string
+    hydrate?: (element: Element, props: Record<string, unknown>) => void
+  }
+  const component: MoonBitComponent
+  export default component
+}`
+        });
       }
     }
   };

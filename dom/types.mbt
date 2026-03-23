@@ -13,3 +13,7 @@ pub type Comment
 ///|
 #external
 pub type Event
+
+///|
+#external
+pub type Props

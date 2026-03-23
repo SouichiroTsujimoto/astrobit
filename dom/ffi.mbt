@@ -103,3 +103,59 @@ pub extern "js" fn query_selector(selector : String) -> Element? =
   #|  if (el == null) return {$tag: 0};
   #|  return {$tag: 1, _0: el};
   #|}
+
+///|
+extern "js" fn props_get_int_js(props : Props, key : String) -> Int? =
+  #|(props, key) => {
+  #|  const v = props[key];
+  #|  if (v == null) return {$tag: 0};
+  #|  return {$tag: 1, _0: v};
+  #|}
+
+///|
+extern "js" fn props_get_string_js(props : Props, key : String) -> String? =
+  #|(props, key) => {
+  #|  const v = props[key];
+  #|  if (v == null) return {$tag: 0};
+  #|  return {$tag: 1, _0: String(v)};
+  #|}
+
+///|
+extern "js" fn props_get_bool_js(props : Props, key : String) -> Bool? =
+  #|(props, key) => {
+  #|  const v = props[key];
+  #|  if (v == null) return {$tag: 0};
+  #|  return {$tag: 1, _0: Boolean(v)};
+  #|}
+
+///|
+pub fn Props::get_int(self : Props, key : String, default? : Int = 0) -> Int {
+  match props_get_int_js(self, key) {
+    Some(v) => v
+    None => default
+  }
+}
+
+///|
+pub fn Props::get_string(
+  self : Props,
+  key : String,
+  default? : String = "",
+) -> String {
+  match props_get_string_js(self, key) {
+    Some(v) => v
+    None => default
+  }
+}
+
+///|
+pub fn Props::get_bool(
+  self : Props,
+  key : String,
+  default? : Bool = false,
+) -> Bool {
+  match props_get_bool_js(self, key) {
+    Some(v) => v
+    None => default
+  }
+}

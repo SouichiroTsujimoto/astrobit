@@ -1,9 +1,0 @@
-import {
-  "SouichiroTsujimoto/astrobit" @a,
-  "SouichiroTsujimoto/astrobit/dom",
-  "mizchi/signals",
-}
-
-options(
-  link: { "js": { "exports": [ "mount", "render", "hydrate", "mount_greeting", "render_greeting", "hydrate_greeting" ], "format": "esm" } },
-)
