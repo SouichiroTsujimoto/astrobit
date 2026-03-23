@@ -85,6 +85,10 @@ pub extern "js" fn set_element_value(el : Element, value : String) -> Unit =
   #|(el, v) => { el.value = v; }
 
 ///|
+pub extern "js" fn focus(el : Element) -> Unit =
+  #|(el) => el.focus()
+
+///|
 pub extern "js" fn nth_child_element(el : Element, i : Int) -> Element? =
   #|(el, i) => {
   #|  const node = el.childNodes[i];
