@@ -438,8 +438,6 @@ pub fn dyn_attr(node : Node, name : String, f : () -> String) -> Node {
 }
 
 ///|
-/// SSR で生成した既存 DOM に signal とイベントを接続する。
-/// DOM ツリーを再構築せず、TextNode の in-place 更新とイベント登録のみ行う。
 pub fn hydrate_dom(parent : @dom.Element, node : Node) -> Unit {
   let _ = hydrate_node(parent, node, 0)
 }

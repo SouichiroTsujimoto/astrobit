@@ -13,28 +13,32 @@ Write your UI logic in MoonBit, use it directly in `.astro` files — SSR and cl
 
 ```sh
 npm install astrobit
+// or
+yarn add astrobit
 ```
 
 Add the integration to your `astro.config.mjs`:
 
 ```js
 import { defineConfig } from 'astro/config'
-import astrobit from 'astrobit'
+import astrobit from 'astrobit' // here
 
 export default defineConfig({
-  integrations: [astrobit()],
+  integrations: [
+    astrobit() // and here
+  ],
 })
 ```
 
 ## Project Setup
 
-Place a `moon.mod.json` at the root of your Astro project:
+Place a `moon.mod.json` at the **root** of your Astro project:
 
 ```json
 {
   "name": "yourname/your-project",
   "deps": {
-    "SouichiroTsujimoto/astrobit": "0.1.1",
+    "SouichiroTsujimoto/astrobit": "0.1.4",
     "mizchi/signals": "0.6.4"
   },
   "preferred-target": "js"
@@ -53,16 +57,15 @@ Each component lives in its own directory with a `moon.pkg` file.
 
 **`src/components/counter/moon.pkg`**
 ```json
-{
-  "import": [
-    "SouichiroTsujimoto/astrobit" @a,
-    "SouichiroTsujimoto/astrobit/dom",
-    "mizchi/signals"
-  ],
-  "options": {
-    "link": { "js": { "exports": ["mount", "render", "hydrate"], "format": "esm" } }
-  }
+import {
+  "SouichiroTsujimoto/astrobit" @a,
+  "SouichiroTsujimoto/astrobit/dom",
+  "mizchi/signals",
 }
+
+options(
+  link: { "js": { "exports": [ "mount", "render", "hydrate" ], "format": "esm" } },
+)
 ```
 
 **`src/components/counter/counter.mbt`**
