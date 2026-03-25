@@ -41,6 +41,9 @@ if (command === "build") {
     console.log(`[astrobit] moon already available: ${version}`);
   }
 
+  console.log("[astrobit] running moon update...");
+  run("moon update");
+
   console.log("[astrobit] running moon build...");
   run("moon build");
 
