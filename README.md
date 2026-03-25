@@ -4,6 +4,10 @@ A thin framework for running [MoonBit](https://www.moonbitlang.com/) components 
 
 Write your UI logic in MoonBit, use it directly in `.astro` files — SSR and client-side hydration included.
 
+## Demo
+
+See the live demo at: [https://astrobit-sample.vercel.app/](https://astrobit-sample.vercel.app/)
+
 ## Requirements
 
 - [Astro](https://astro.build/) 6+
