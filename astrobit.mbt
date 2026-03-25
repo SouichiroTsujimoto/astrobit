@@ -36,24 +36,46 @@ pub impl ToArrayNode for Array[Node] with to_array_node(self) {
 
 ///|
 pub fn render_to_html(node : Node) -> String {
+  let buf = StringBuilder::new()
+  render_to_buf(buf, node)
+  buf.to_string()
+}
+
+///|
+fn render_to_buf(buf : StringBuilder, node : Node) -> Unit {
   match node {
     Element(tag, attrs, children) => {
-      let attr_str = render_attrs(attrs)
-      let children_str = children
-        .map(render_to_html)
-        .fold(init="", fn(acc, s) { acc + s })
+      buf.write_string("<")
+      buf.write_string(tag)
+      if not(attrs.is_empty()) {
+        render_attrs_buf(buf, attrs)
+      }
       if is_void_element(tag) {
-        "<" + tag + attr_str + "/>"
+        buf.write_string("/>")
       } else {
-        "<" + tag + attr_str + ">" + children_str + "</" + tag + ">"
+        buf.write_string(">")
+        for child in children {
+          render_to_buf(buf, child)
+        }
+        buf.write_string("</")
+        buf.write_string(tag)
+        buf.write_string(">")
       }
     }
-    Text(s) => escape_html(s)
-    Empty => ""
-    RawHtml(html) => "<span>" + html + "</span>"
-    DynText(f) => escape_html(f())
-    Dynamic(f) => "<!--dynamic--><span>" + render_to_html(f()) + "</span>"
-    WithEvents(inner, _) => render_to_html(inner)
+    Text(s) => escape_html_buf(buf, s)
+    Empty => ()
+    RawHtml(html) => {
+      buf.write_string("<span>")
+      buf.write_string(html)
+      buf.write_string("</span>")
+    }
+    DynText(f) => escape_html_buf(buf, f())
+    Dynamic(f) => {
+      buf.write_string("<!--dynamic--><span>")
+      render_to_buf(buf, f())
+      buf.write_string("</span>")
+    }
+    WithEvents(inner, _) => render_to_buf(buf, inner)
     WithDynAttrs(inner, dyn_a) =>
       match inner {
         Element(tag, attrs, children) => {
@@ -64,40 +86,41 @@ pub fn render_to_html(node : Node) -> String {
               None => ()
             }
           }
-          render_to_html(Element(tag, merged, children))
+          render_to_buf(buf, Element(tag, merged, children))
         }
-        _ => render_to_html(inner)
+        _ => render_to_buf(buf, inner)
       }
   }
 }
 
 ///|
-fn render_attrs(attrs : Map[String, String]) -> String {
-  let mut r = ""
+fn render_attrs_buf(buf : StringBuilder, attrs : Map[String, String]) -> Unit {
   attrs.each(fn(key, value) {
-    if value == "" {
-      r = r + " " + escape_html(key)
-    } else {
-      r = r + " " + escape_html(key) + "=\"" + escape_html(value) + "\""
+    buf.write_string(" ")
+    buf.write_string(key)
+    if value != "" {
+      buf.write_string("=\"")
+      escape_html_buf(buf, value)
+      buf.write_string("\"")
     }
   })
-  r
 }
 
 ///|
-fn escape_html(s : String) -> String {
-  let mut r = ""
-  for c in s {
-    match c {
-      '&' => r = r + "&amp;"
-      '<' => r = r + "&lt;"
-      '>' => r = r + "&gt;"
-      '"' => r = r + "&quot;"
-      '\'' => r = r + "&#x27;"
-      _ => r = r + c.to_string()
-    }
-  }
-  r
+extern "js" fn init_escape_html() -> (String) -> String =
+  #|() => {
+  #|  const map = Object.freeze({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#x27;"});
+  #|  const need = /[&<>"']/;
+  #|  const re = /[&<>"']/g;
+  #|  return (s) => need.test(s) ? s.replace(re, (c) => map[c]) : s;
+  #|}
+
+///|
+let escape_html : (String) -> String = init_escape_html()
+
+///|
+fn escape_html_buf(buf : StringBuilder, s : String) -> Unit {
+  buf.write_string(escape_html(s))
 }
 
 ///|
