@@ -1,4 +1,5 @@
 import {
   "SouichiroTsujimoto/astrobit/dom",
+  "moonbitlang/core/bench",
   "mizchi/signals",
 }
