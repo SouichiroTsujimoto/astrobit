@@ -7,7 +7,9 @@ Write your UI logic in MoonBit, use it directly in `.astro` files — SSR and cl
 ## Requirements
 
 - [Astro](https://astro.build/) 6+
-- [MoonBit toolchain](https://www.moonbitlang.com/download/) (`moon` CLI)
+
+> [!NOTE]
+> The [MoonBit toolchain](https://www.moonbitlang.com/download/) (`moon` CLI) is required, but `astrobit build` will install it automatically if not found.
 
 ## Installation
 
@@ -123,7 +125,19 @@ TypeScript types for `*.mbt` imports are injected automatically — no manual `e
 
 ## Build
 
-Before running the dev server, build the MoonBit sources:
+Add `astrobit build` as your build script in `package.json`:
+
+```json
+{
+  "scripts": {
+    "build": "astrobit build"
+  }
+}
+```
+
+`astrobit build` installs the `moon` CLI automatically if it's not available, then runs `moon build` followed by `astro build`. No manual toolchain setup is required for deployment (e.g. Vercel).
+
+For local development, build the MoonBit sources first:
 
 ```sh
 moon build

@@ -1,6 +1,6 @@
 {
   "name": "astrobit",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "type": "module",
   "main": "./dist/integration.js",
   "types": "./dist/integration.d.ts",
@@ -13,8 +13,12 @@
       "types": "./env.d.ts"
     }
   },
+  "bin": {
+    "astrobit": "./bin/astrobit.js"
+  },
   "files": [
     "dist",
+    "bin",
     "env.d.ts"
   ],
   "scripts": {
