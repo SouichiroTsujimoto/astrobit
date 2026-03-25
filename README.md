@@ -44,7 +44,7 @@ Place a `moon.mod.json` at the **root** of your Astro project:
 {
   "name": "yourname/your-project",
   "deps": {
-    "SouichiroTsujimoto/astrobit": "0.1.4",
+    "SouichiroTsujimoto/astrobit": "0.1.6",
     "mizchi/signals": "0.6.4"
   },
   "preferred-target": "js"
