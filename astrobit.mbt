@@ -107,30 +107,20 @@ fn render_attrs_buf(buf : StringBuilder, attrs : Map[String, String]) -> Unit {
 }
 
 ///|
-extern "js" fn js_escape_html(s : String) -> String =
-  #|(s) => {
-  #|  if (!/[&<>"']/.test(s)) return s;
-  #|  let r = "", i = 0, last = 0, ch;
-  #|  for (; i < s.length; i++) {
-  #|    ch = s.charCodeAt(i);
-  #|    if (ch === 38) ch = "&amp;";
-  #|    else if (ch === 60) ch = "&lt;";
-  #|    else if (ch === 62) ch = "&gt;";
-  #|    else if (ch === 34) ch = "&quot;";
-  #|    else if (ch === 39) ch = "&#x27;";
-  #|    else continue;
-  #|    if (last < i) r += s.substring(last, i);
-  #|    r += ch;
-  #|    last = i + 1;
-  #|  }
-  #|  if (last === 0) return s;
-  #|  if (last < s.length) r += s.substring(last);
-  #|  return r;
+extern "js" fn init_escape_html() -> (String) -> String =
+  #|() => {
+  #|  const map = Object.freeze({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#x27;"});
+  #|  const need = /[&<>"']/;
+  #|  const re = /[&<>"']/g;
+  #|  return (s) => need.test(s) ? s.replace(re, (c) => map[c]) : s;
   #|}
 
 ///|
+let escape_html : (String) -> String = init_escape_html()
+
+///|
 fn escape_html_buf(buf : StringBuilder, s : String) -> Unit {
-  buf.write_string(js_escape_html(s))
+  buf.write_string(escape_html(s))
 }
 
 ///|
